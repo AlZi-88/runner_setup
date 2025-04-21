@@ -6,6 +6,39 @@
     - name: "github_token"
       prompt: "Enter GitHub runner token"
       private: yes
+    - name: "target_ip"
+      prompt: "Enter the IP address of the Target Raspberry Pi"
+    - name: "target_pass"
+      prompt: "Enter the password for the 'drone' user on the Target Pi"
+      private: yes
+
+  pre_tasks:
+    - name: Ensure SSH key exists locally
+      stat:
+        path: "{{ lookup('env','HOME') + '/.ssh/id_rsa.pub' }}"
+      register: ssh_key
+
+    - name: Fail if SSH key is not found
+      fail:
+        msg: "SSH public key not found at ~/.ssh/id_rsa.pub"
+      when: not ssh_key.stat.exists
+
+    - name: Copy SSH key to target
+      delegate_to: localhost
+      expect:
+        command: ssh-copy-id -i ~/.ssh/id_rsa.pub drone@{{ target_ip }}
+        responses:
+          password: "{{ target_pass }}"
+
+    - name: Write inventory for target host
+      copy:
+        dest: "ansible/inventory/target.yaml"
+        content: |
+          all:
+            hosts:
+              target:
+                ansible_host: {{ target_ip }}
+                ansible_user: drone
 
   roles:
     - github_runner
