@@ -1,0 +1,5 @@
+all:
+  hosts:
+    compi:
+      ansible_host: runner
+      ansible_user: compi

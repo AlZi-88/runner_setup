@@ -1,0 +1,6 @@
+- name: Setup GitHub Actions Runner on runner
+  hosts: compi
+  become: yes
+
+  roles:
+    - github_runner

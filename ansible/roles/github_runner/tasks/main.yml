@@ -1,0 +1,26 @@
+- name: Ensure required packages are installed
+  apt:
+    name: [curl, unzip, git, nano, ]
+    state: present
+    update_cache: yes
+
+- name: Create actions-runner directory
+  file:
+    path: /home/compi/actions-runner
+    state: directory
+    owner: compi
+    group: compi
+    mode: '0755'
+
+- name: Download GitHub Actions Runner
+  become_user: compi
+  get_url:
+    url: https://github.com/actions/runner/releases/download/v2.315.0/actions-runner-linux-arm64-2.315.0.tar.gz
+    dest: /home/compi/actions-runner/runner.tar.gz
+
+- name: Extract Runner
+  become_user: compi
+  unarchive:
+    src: /home/compi/actions-runner/runner.tar.gz
+    dest: /home/compi/actions-runner
+    remote_src: yes
