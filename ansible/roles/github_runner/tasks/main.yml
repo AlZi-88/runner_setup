@@ -39,13 +39,13 @@
     creates: /home/compi/actions-runner/.runner
 
 - name: Install GitHub Actions Runner as a service
-  become_user: compi
+  become: yes
   command: ./svc.sh install
   args:
     chdir: /home/compi/actions-runner
 
 - name: Start GitHub Actions Runner service
-  become_user: compi
+  become: yes
   command: ./svc.sh start
   args:
     chdir: /home/compi/actions-runner

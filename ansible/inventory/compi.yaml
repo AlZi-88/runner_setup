@@ -3,3 +3,4 @@ all:
     compi:
       ansible_host: runner
       ansible_user: compi
+      ansible_ask_pass: true
