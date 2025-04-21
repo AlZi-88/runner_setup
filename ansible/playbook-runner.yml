@@ -16,21 +16,36 @@
   pre_tasks:
     - name: Ensure SSH key exists locally
       stat:
-        path: "{{ lookup('env','HOME') + '/.ssh/id_rsa.pub' }}"
+        path: "/home/compi/.ssh/id_rsa.pub"
+      delegate_to: compi
       register: ssh_key
 
-    - name: Generate SSH key if not present
-      command: ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
-      args:
-        creates: ~/.ssh/id_rsa
-      delegate_to: localhost
+    - name: Ensure ~/.ssh directory exists
+      stat:
+        path: "/home/compi/.ssh"
+      delegate_to: compi
+      register: ssh_dir
+ 
+    - name: Generate SSH key pair using openssh_keypair
+      community.crypto.openssh_keypair:
+        path: "/home/compi/.ssh/id_rsa"
+        type: rsa
+        size: 4096
+      delegate_to: compi
+      when: not ssh_key.stat.exists
+
+    - name: Add target host to known_hosts on runner
+      shell: |
+        ssh-keyscan -H {{ target_ip }} >> /home/compi/.ssh/known_hosts
+      delegate_to: compi
 
     - name: Copy SSH key to target
-      delegate_to: localhost
+      delegate_to: compi
       expect:
-        command: ssh-copy-id -i ~/.ssh/id_rsa.pub drone@{{ target_ip }}
+        command: ssh-copy-id -f -i /home/compi/.ssh/id_rsa.pub drone@{{ target_ip }}
         responses:
-          password: "{{ target_pass }}"
+          "Are you sure you want to continue connecting.*": "yes"
+          "password:": "{{ target_pass }}"  
 
     - name: Write inventory for target host
       copy:
