@@ -24,3 +24,28 @@
     src: /home/compi/actions-runner/actions-runner.tar.gz
     dest: /home/compi/actions-runner
     remote_src: yes
+
+- name: Configure GitHub Actions Runner
+  become_user: compi
+  command: >
+    ./config.sh 
+    --url https://github.com/AlZi-88/droneComPi-setup 
+    --token AQBZJZ3RNZSCQ4UEBLCHRN3IAY4NE
+    --name compi
+    --labels raspi, infra, arm64
+    --unattended
+  args:
+    chdir: /home/compi/actions-runner
+    creates: /home/compi/actions-runner/.runner
+
+- name: Install GitHub Actions Runner as a service
+  become_user: compi
+  command: ./svc.sh install
+  args:
+    chdir: /home/compi/actions-runner
+
+- name: Start GitHub Actions Runner service
+  become_user: compi
+  command: ./svc.sh start
+  args:
+    chdir: /home/compi/actions-runner
