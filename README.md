@@ -53,9 +53,9 @@ Use a Raspberry Pi as a local CI/CD server to execute GitHub Actions workflows. 
 
 ### 3. Run the Playbook
 
-- Execute the playbook to install and register the runner:
+- Execute the playbook to install and register the runner from `runner_setup`-folder:
   ```bash
-  ansible-playbook -i ansible/inventory/compirunner.yaml ansible/playbook-runner.yml --ask-become-pass
+  ansible-playbook -i ansible/inventory/compi.yaml ansible/playbook-runner.yml --ask-become-pass
   ```
 
 ### 4. Confirm Runner Is Online
