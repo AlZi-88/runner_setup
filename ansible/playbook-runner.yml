@@ -8,6 +8,7 @@
       private: yes
     - name: "target_ip"
       prompt: "Enter the IP address of the Target Raspberry Pi"
+      private: no
     - name: "target_pass"
       prompt: "Enter the password for the 'drone' user on the Target Pi"
       private: yes
