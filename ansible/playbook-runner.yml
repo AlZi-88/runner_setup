@@ -18,10 +18,11 @@
         path: "{{ lookup('env','HOME') + '/.ssh/id_rsa.pub' }}"
       register: ssh_key
 
-    - name: Fail if SSH key is not found
-      fail:
-        msg: "SSH public key not found at ~/.ssh/id_rsa.pub"
-      when: not ssh_key.stat.exists
+    - name: Generate SSH key if not present
+      command: ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
+      args:
+        creates: ~/.ssh/id_rsa
+      delegate_to: localhost
 
     - name: Copy SSH key to target
       delegate_to: localhost
