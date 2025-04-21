@@ -2,5 +2,10 @@
   hosts: compi
   become: yes
 
+  vars_prompt:
+    - name: "github_token"
+      prompt: "Enter GitHub runner token"
+      private: yes
+
   roles:
     - github_runner
