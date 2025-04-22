@@ -1,6 +1,5 @@
 - name: Setup GitHub Actions Runner on runner
   hosts: compi
-  become: yes
 
   vars_prompt:
     - name: "github_token"
