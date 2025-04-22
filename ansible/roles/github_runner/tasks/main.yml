@@ -1,8 +1,25 @@
+- name: Generate GitHub repo URL
+  set_fact:
+    github_repo_url: "https://github.com/AlZi-88/droneComPi-setup"
+
 - name: Ensure required packages are installed
   apt:
-    name: [curl, unzip, git, nano, htop, net-tools, software-properties-common, python3-pip, python3-venv, ansible]
+    name: [curl, unzip, git, gh, nano, htop, net-tools, software-properties-common, python3-pip, python3-venv, ansible]
     state: present
     update_cache: yes
+
+- name: Wait for GitHub CLI authentication on compi
+  shell: |
+    gh auth status --hostname github.com --show-token | grep "Token"
+  register: gh_auth_status
+  changed_when: false
+  failed_when: false
+  delegate_to: compi
+  become: false
+  become_user: compi
+  retries: 12
+  delay: 10
+  until: gh_auth_status.rc == 0
 
 - name: Create actions-runner directory
   file:
@@ -34,7 +51,7 @@
   become_user: compi
   command: >
     ./config.sh 
-    --url https://github.com/AlZi-88/droneComPi-setup 
+    --url {{ github_repo_url }}
     --token {{ github_token }}
     --name compi
     --labels raspi, arm64,
@@ -44,14 +61,41 @@
     chdir: /home/compi/actions-runner
   when: not runner_state.stat.exists
 
+- name: Check if GitHub Runner systemd service file exists
+  stat:
+    path: /etc/systemd/system/actions.runner.AlZi-88-droneComPi-setup.compi.service
+  register: runner_service_file
+
 - name: Install GitHub Actions Runner as a service
   become: yes
   command: ./svc.sh install
   args:
     chdir: /home/compi/actions-runner
+  when: not runner_service_file.stat.exists
+
+- name: Check if GitHub Actions Runner service is active
+  shell: |
+    systemctl is-active actions.runner.AlZi-88-droneComPi-setup.compi.service || true
+  register: runner_service_active
+  changed_when: false
 
 - name: Start GitHub Actions Runner service
   become: yes
   command: ./svc.sh start
   args:
     chdir: /home/compi/actions-runner
+  when: runner_service_active.stdout != "active"
+
+- name: Show target_ip before setting GitHub secret
+  debug:
+    msg: "Target IP is {{ target_ip }}"
+
+- name: Write TARGET PI IP as GitHub Actions Secret
+  shell: |
+      gh secret set TARGET_PI_IP -b"{{ target_ip }}" -R {{ github_repo_url }}
+  delegate_to: compi
+  become: false
+  become_user: compi
+#  environment:
+#    GH_TOKEN: "{{ lookup('env','GH_TOKEN') }}"
+  when: github_repo_url is defined and target_ip != ""
