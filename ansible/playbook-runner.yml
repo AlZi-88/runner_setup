@@ -47,15 +47,5 @@
           "Are you sure you want to continue connecting.*": "yes"
           "password:": "{{ target_pass }}"  
 
-    - name: Write inventory for target host
-      copy:
-        dest: "ansible/inventory/target.yaml"
-        content: |
-          all:
-            hosts:
-              target:
-                ansible_host: {{ target_ip }}
-                ansible_user: drone
-
   roles:
     - github_runner
