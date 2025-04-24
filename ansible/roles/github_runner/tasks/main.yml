@@ -7,6 +7,7 @@
     name: [curl, unzip, git, gh, nano, htop, net-tools, software-properties-common, python3-pip, python3-venv, ansible]
     state: present
     update_cache: yes
+  become: yes
 
 - name: Wait for GitHub CLI authentication on compi
   shell: |
@@ -96,6 +97,12 @@
   delegate_to: compi
   become: false
   become_user: compi
-#  environment:
-#    GH_TOKEN: "{{ lookup('env','GH_TOKEN') }}"
   when: github_repo_url is defined and target_ip != ""
+
+- name: Write drone user password as GitHub Actions Secret
+  shell: |
+      gh secret set DRONE_USER_PASSWORD -b"{{ target_pass }}" -R {{ github_repo_url }}
+  delegate_to: compi
+  become: false
+  become_user: compi
+  when: github_repo_url is defined and target_pass != ""

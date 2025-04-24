@@ -48,3 +48,4 @@
 
   roles:
     - github_runner
+    - docu-generator

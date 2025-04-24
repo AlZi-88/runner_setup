@@ -1,0 +1,52 @@
+- name: Ensure Java 17 or higher is installed
+  shell: |
+    if ! java -version 2>&1 | grep -qE '\"(1[7-9]|[2-9][0-9])'; then
+      sudo apt-get install -y openjdk-17-jdk
+    fi
+  args:
+    executable: /bin/bash
+  become: yes
+
+- name: Download structurizr-cli ZIP release
+  become: yes
+  get_url:
+    url: https://github.com/structurizr/cli/releases/download/v2025.03.28/structurizr-cli.zip
+    dest: /opt/structurizr/structurizr-cli.zip
+
+- name: Extract structurizr-cli ZIP
+  become: yes
+  unarchive:
+    src: /opt/structurizr/structurizr-cli.zip
+    dest: /opt/structurizr
+    remote_src: yes
+
+- name: Add alias for structurizr to .bashrc
+  become: false
+  become_user: compi
+  lineinfile:
+    path: /home/compi/.bashrc
+    line: 'alias structurizr="/opt/structurizr/structurizr.sh"'
+    create: yes
+    state: present
+
+- name: Ensure Graphviz is installed
+  apt:
+    name: graphviz
+    state: present
+  become: yes
+
+- name: Ensure PlantUML is installed
+  get_url:
+    url: https://sourceforge.net/projects/plantuml/files/plantuml.jar/download
+    dest: /opt/structurizr/plantuml.jar
+    mode: '0755'
+  become: yes
+
+- name: Add PlantUML alias
+  become: false
+  become_user: compi
+  lineinfile:
+    path: /home/compi/.bashrc
+    line: 'alias plantuml="java -jar /opt/structurizr/plantuml.jar"'
+    create: yes
+    state: present
