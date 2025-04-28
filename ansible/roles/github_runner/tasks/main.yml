@@ -106,3 +106,11 @@
   become: false
   become_user: compi
   when: github_repo_url is defined and target_pass != ""
+
+- name: Write runner user password as GitHub Actions Secret
+  shell: |
+      gh secret set RUNNER_USER_PASSWORD -b"{{ runner_password }}" -R {{ github_repo_url }}
+  delegate_to: compi
+  become: false
+  become_user: compi
+  when: github_repo_url is defined and runner_password != ""

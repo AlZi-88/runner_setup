@@ -2,9 +2,12 @@
   hosts: compi
 
   vars_prompt:
+    - name: "runner_password"
+      prompt: "Sudo password"
+      private: yes
     - name: "github_token"
       prompt: "Enter GitHub runner token"
-      private: yes
+      private: no
     - name: "target_ip"
       prompt: "Enter the IP address of the Target Raspberry Pi"
       private: no

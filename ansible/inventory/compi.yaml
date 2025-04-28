@@ -3,4 +3,5 @@ all:
     compi:
       ansible_host: runner
       ansible_user: compi
+      ansible_become_password: "{{ runner_password }}"
       ansible_ask_pass: true
