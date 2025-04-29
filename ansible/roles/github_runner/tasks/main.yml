@@ -4,7 +4,7 @@
 
 - name: Ensure required packages are installed
   apt:
-    name: [curl, unzip, git, gh, nano, htop, net-tools, software-properties-common, python3-pip, python3-venv, ansible]
+    name: [curl, unzip, git, gh, nano, htop, net-tools, software-properties-common, python3-pip, python3-venv, ansible, cifs-utils]
     state: present
     update_cache: yes
   become: yes
