@@ -8,11 +8,14 @@
     - name: "github_token"
       prompt: "Enter GitHub runner token"
       private: no
-    - name: "target_ip"
-      prompt: "Enter the IP address of the Target Raspberry Pi"
+    - name: "compi_ip"
+      prompt: "Enter the IP address of the Compi Raspberry Pi"
+      private: no
+    - name: "campi_ip"
+      prompt: "Enter the IP address of the Campi Raspberry Pi"
       private: no
     - name: "target_pass"
-      prompt: "Enter the password for the 'drone' user on the Target Pi"
+      prompt: "Enter the password for the 'drone' user on the Target Pis"
       private: yes
 
   pre_tasks:
@@ -38,13 +41,13 @@
 
     - name: Add target host to known_hosts on runner
       shell: |
-        ssh-keyscan -H {{ target_ip }} >> /home/compi/.ssh/known_hosts
+        ssh-keyscan -H {{ compi_ip }} >> /home/compi/.ssh/known_hosts
       delegate_to: compi
 
     - name: Copy SSH key to target
       delegate_to: compi
       expect:
-        command: ssh-copy-id -f -i /home/compi/.ssh/id_rsa.pub drone@{{ target_ip }}
+        command: ssh-copy-id -f -i /home/compi/.ssh/id_rsa.pub drone@{{ compi_ip }}
         responses:
           "Are you sure you want to continue connecting.*": "yes"
           "password:": "{{ target_pass }}"  

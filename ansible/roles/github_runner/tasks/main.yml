@@ -87,17 +87,25 @@
     chdir: /home/compi/actions-runner
   when: runner_service_active.stdout != "active"
 
-- name: Show target_ip before setting GitHub secret
+- name: Show compi_ip before setting GitHub secret
   debug:
-    msg: "Target IP is {{ target_ip }}"
+    msg: "Target IP is {{ compi_ip }}"
 
 - name: Write TARGET PI IP as GitHub Actions Secret
   shell: |
-      gh secret set TARGET_PI_IP -b"{{ target_ip }}" -R {{ github_repo_url }}
+      gh secret set COMPI_PI_IP -b"{{ compi_ip }}" -R {{ github_repo_url }}
   delegate_to: compi
   become: false
   become_user: compi
-  when: github_repo_url is defined and target_ip != ""
+  when: github_repo_url is defined and compi_ip != ""
+
+- name: Write CAMPI PI IP as GitHub Actions Secret
+  shell: |
+      gh secret set CAMPI_PI_IP -b"{{ compi_ip }}" -R {{ github_repo_url }}
+  delegate_to: compi
+  become: false
+  become_user: compi
+  when: github_repo_url is defined and campi_ip != ""
 
 - name: Write drone user password as GitHub Actions Secret
   shell: |
